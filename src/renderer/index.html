@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- THESIS: One question, three identifiable sources, one reviewable synthesis.
+OWN-WORLD: Cool white work surface, graphite monotype controls, restrained teal action.
+STORY: Sign in, ask, capture and review sources, choose a merge policy, combine.
+FIRST VIEWPORT: Compact masthead, shared composer, branded name tabs, full-height work area.
+FORM: User-pinned tabbed desktop workspace; technical monotype, no concept tournament. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Prism</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/marked.js" defer></script>
+  <script src="vendor/purify.js" defer></script>
+  <script src="answer.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <div><span class="wordmark">Prism<span class="cursor-mark">_</span></span><span class="local-label">One question. More perspectives.</span></div>
+    <div><button id="new-session">New session</button><button id="settings" class="quiet">Synthesis settings</button><button id="export" class="quiet">Export report</button></div>
+  </header>
+  <section class="composer" aria-label="Shared clinical question">
+    <details id="session-question"><summary id="question-summary"></summary><p id="question-full"></p></details>
+    <label for="question">One question. Three perspectives.</label>
+    <div class="question-row"><textarea id="question" rows="2" maxlength="16000" placeholder="What would you like to investigate?"></textarea><button id="ask" class="primary">Ask 3 services</button></div>
+    <div class="composer-bottom"><p id="session-hint" class="hint">Choose one, two, or three services below. Two or more answers are combined automatically.</p><button id="copy" class="quiet">Copy question</button></div>
+  </section>
+  <nav class="tabs" aria-label="Workspace tabs">
+    <button data-tab="workspace" class="tab">Live services</button>
+    <button data-tab="review" class="tab active" aria-current="page">Source record</button>
+    <div class="service-tab"><input type="checkbox" data-provider="openevidence" checked aria-label="Include OpenEvidence"><button data-tab="openevidence" class="tab oe"><img class="service-icon" src="assets/openevidence.ico" alt=""><span class="tab-label">OpenEvidence<small class="session-status" data-session="openevidence">Not checked</small></span><span class="source-code">OE</span></button></div>
+    <div class="service-tab"><input type="checkbox" data-provider="chatgpt" checked aria-label="Include GPT for Clinicians"><button data-tab="chatgpt" class="tab gpt"><img class="service-icon" src="assets/chatgpt.png" alt=""><span class="tab-label">GPT for Clinicians<small class="session-status" data-session="chatgpt">Not checked</small></span><span class="source-code">GPT</span></button></div>
+    <div class="service-tab"><input type="checkbox" data-provider="doximity" checked aria-label="Include Doximity Ask"><button data-tab="doximity" class="tab dox"><img class="service-icon" src="assets/doximity.ico" alt=""><span class="tab-label">Doximity Ask<small class="session-status" data-session="doximity">Not checked</small></span><span class="source-code">DOX</span></button></div>
+    <button data-tab="combined" class="tab"><span>Combined answer</span></button>
+  </nav>
+  <main id="workspace">
+    <section id="review">
+      <div class="review-top"><div><h1>Your source answers</h1><p class="subhead">Open any service tab to read its original response. Finished answers are collected here automatically.</p></div><div><span id="count" class="counter">Choose services above</span></div></div>
+      <nav id="source-jumps" class="source-actions" aria-label="Jump to a collected answer" hidden></nav>
+      <div class="review-grid">
+        <section class="sources" aria-label="Source answers"><div id="answers"></div><section id="combined-result" hidden><h2>Combined answer</h2><p class="hint">Generated synthesis · check against the source record</p><div id="combined-text" class="answer-text"></div><div id="combined-links" class="references"></div></section></section>
+
+      </div>
+    </section>
+    <section id="synthesis-page" hidden>
+      <div class="review-top"><div><h1>Combined answer</h1><p class="subhead">Gemini Flash · thinking high · original sources always available in their tabs</p></div><div><button id="return-review">View source answers</button><button id="cancel-synthesis" hidden>Cancel synthesis</button></div></div>
+      <p id="synthesis-status" role="status" aria-live="polite">Ask two or three services to combine their answers automatically.</p>
+      <p id="synthesis-requirements" class="hint"></p>
+      <div id="synthesis-output" class="answer-text"></div>
+      <details id="ready-controls" hidden open><summary>Choose sources / synthesize again</summary><fieldset id="ready-sources"><legend>Use the answers already ready</legend><div id="ready-options" class="provider-checks"></div></fieldset><button id="force-synthesis">Synthesize ready answers</button><p class="hint">Choose one to read directly, or two or more to synthesize. Other services can keep working.</p></details>
+      <section id="shared-citations" hidden aria-label="Shared citations in synthesis inputs">
+        <h2>Shared citations in captured sources</h2>
+        <p class="hint">Same reference URL across services, not independent evidence. Different URLs for the same paper may not be matched.</p>
+        <div id="shared-citation-list" class="references"></div>
+      </section>
+    </section>
+    <section id="api-settings" hidden>
+      <h1>Synthesis settings</h1><p class="subhead">Gemini runs our merge policy. Thinking level: high.</p>
+        <section class="merge-panel">
+          <h2>Shape the answer</h2>
+          <p class="subhead">A starting policy you can change.</p>
+          <p class="hint">Captured answers are sent to the Gemini API. Review the synthesis before use.</p>
+          <label for="format">Format</label><select id="format"><option>Clinical brief</option><option>Evidence comparison</option><option>Detailed review</option></select>
+          <div class="field-pair"><div><label for="length">Detail level</label><select id="length" aria-describedby="detail-help"><option value="Short">Brief</option><option selected>Standard</option><option value="Detailed">Deep</option></select></div><div><label for="audience">Audience</label><select id="audience"><option>Clinician</option><option>Patient or caregiver</option><option>Research team</option></select></div></div>
+          <p id="detail-help" class="hint">Controls explanation and supporting detail—not safety caveats, uncertainty, or meaningful conflicts. Clinical pearls appear only when useful.</p>
+          <label for="priority">Emphasize</label><select id="priority"><option>Evidence and uncertainty</option><option>Practical next steps</option><option>Comprehensive coverage</option></select>
+          <label for="instructions">Your instructions <span class="optional">optional</span></label><textarea id="instructions" rows="3" maxlength="4000" placeholder="For example: focus on pediatric evidence; finish with questions for journal club."></textarea>
+          <label for="system-instruction">System instruction — editable</label><textarea id="system-instruction" rows="5" maxlength="12000" spellcheck="false"></textarea>
+          <label for="prompt-template">Full synthesis prompt — editable</label><textarea id="prompt-template" rows="18" maxlength="24000" spellcheck="false"></textarea>
+          <p class="hint">Keep {{OUTPUT_PREFERENCES}} and {{SOURCE_DATA}} exactly once. They are filled with your settings and source record when you synthesize. Both instruction layers above are sent to Gemini; there is no hidden merge prompt.</p>
+          <button id="save-prompt" class="primary">Save synthesis instructions</button><button id="reset-prompt">Restore default instructions</button>
+          <button id="packet">Copy populated prompt</button>
+          <details class="prompt-details"><summary>Preview populated prompt</summary><button id="preview">Generate preview</button><pre id="prompt-preview">Capture source answers to preview the populated prompt.</pre></details>
+          <details class="policy"><summary>How merging works</summary><ul><li>Keep relevant, supported and useful unique claims.</li><li>Deduplicate repetition, preserving service labels.</li><li>Retain material disagreements and safety qualifiers.</li><li>Flag unsupported claims and missing sources.</li><li>Preserve original reference links. Agreement is not verification.</li></ul></details>
+        </section>
+      <p id="key-status" class="source-status"></p>
+      <label for="api-model">Model ID</label><input id="api-model" value="gemini-3.8-flash" spellcheck="false">
+      <label for="api-key">Gemini API key</label><input id="api-key" type="password" autocomplete="off" placeholder="Paste to save or replace the key">
+      <p class="hint">Stored locally with macOS-backed encryption. Never sent to service tabs or saved in the repo. API usage is billed to your Gemini account.</p>
+      <button id="save-api" class="primary">Save API settings</button><button id="close-settings">Back to workspace</button>
+    </section>
+    <section id="browser" hidden aria-label="Service browser">
+      <div class="browser-toolbar"><span id="service-status">Open tab to sign in</span><div id="service-controls"><button id="check-auth">Check sign-in</button><button id="confirm-auth">I'm signed in</button><button id="retry">Retry this service</button><details class="service-tools"><summary>Troubleshooting</summary><div><button id="home">Open service home</button><button id="reload">Reload</button><button id="capture">Capture manually</button><button id="diagnose">Export page diagnostics</button></div></details></div><button id="live-services" hidden>Back to live services</button></div>
+      <div id="browser-slot"></div>
+    </section>
+  </main>
+  <footer><span>Sources stay distinct. Conclusions stay reviewable.</span><span id="notice" role="status" aria-live="polite">Ready</span></footer>
+</body>
+</html>
